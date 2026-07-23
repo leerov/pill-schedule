@@ -167,11 +167,11 @@
     <h3 style="margin-top:18px">Этапы дозирования</h3>
     <div id="phases-holder"></div>
     <div class="builder-actions">
-      <button class="ghost-btn" onclick="addPhaseRow()">+ Добавить этап</button>
+<button class="ghost-btn" onclick="createPhaseRow()">+ Добавить этап</button>
     </div>
 
     <div class="builder-actions" style="margin-top:20px;border-top:1px solid var(--line);padding-top:16px;">
-      <button class="solid-btn" onclick="generateCard()">Сформировать карточку</button>
+<button class="solid-btn" onclick="handleGenerateCard()">Сформировать карточку</button>
       <button class="ghost-btn" onclick="resetForm()">Очистить форму</button>
     </div>
   </div>
@@ -183,95 +183,77 @@
 </div>
 
 <script>
-let phaseCount = 0;
-const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+// ==========================================
+// 1. CONSTANTS & CONFIGURATION
+// ==========================================
+const CONFIG = {
+  months: ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'],
+  timePriority: ['Утро','Обед','Вечер','Приём'],
+  defaultShape: 'tablet-round',
+  defaultColor: '#5B6FE0'
+};
 
-function addDays(date, n){ const d = new Date(date); d.setDate(d.getDate() + n); return d; }
-function fmtDate(d){ return d.getDate() + ' ' + MONTHS[d.getMonth()]; }
-function fmtRange(a, b){
-  if(a.getTime() === b.getTime()) return fmtDate(a);
-  if(a.getMonth() === b.getMonth()) return a.getDate() + '–' + b.getDate() + ' ' + MONTHS[a.getMonth()];
-  return fmtDate(a) + ' – ' + fmtDate(b);
-}
-function todayISO(){ const d = new Date(); return isoLocal(d); }
-function isoLocal(d){
-  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${day}`;
-}
-function isoOffset(n){ return isoLocal(addDays(new Date(), n)); }
+// ==========================================
+// 2. UTILITY FUNCTIONS
+// ==========================================
+const DateUtils = {
+  addDays(date, n) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + n);
+    return d;
+  },
+  fmtDate(d) {
+    return `${d.getDate()} ${CONFIG.months[d.getMonth()]}`;
+  },
+  fmtRange(a, b) {
+    if (a.getTime() === b.getTime()) return this.fmtDate(a);
+    if (a.getMonth() === b.getMonth()) return `${a.getDate()}–${b.getDate()} ${CONFIG.months[a.getMonth()]}`;
+    return `${this.fmtDate(a)} – ${this.fmtDate(b)}`;
+  },
+  todayISO() {
+    return this.isoLocal(new Date());
+  },
+  isoLocal(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  },
+  isoOffset(n) {
+    return this.isoLocal(this.addDays(new Date(), n));
+  }
+};
 
-function addPhaseRow(prefill){
-  phaseCount++;
-  const id = phaseCount;
-  const holder = document.getElementById("phases-holder");
-  const box = document.createElement("div");
-  box.className = "phase-box";
-  box.id = "phase-" + id;
-  box.innerHTML = `
-    <span class="phase-num">Этап ${id}</span>
-    <button class="remove-phase" onclick="document.getElementById('phase-${id}').remove()">Удалить</button>
-    <div class="row" style="margin-bottom:8px">
-      <div class="field" style="flex:1 1 140px">
-        <label>Дни (подпись)</label>
-        <input type="text" class="p-day" placeholder="напр. 1–3 день" value="${prefill && prefill.day || ''}">
-      </div>
-      <div class="field" style="flex:0 0 100px">
-        <label>Доза</label>
-        <input type="text" class="p-dose" placeholder="напр. 5" value="${prefill && prefill.dose || ''}">
-      </div>
-      <div class="field" style="flex:0 0 120px">
-        <label>Единица</label>
-        <input type="text" class="p-unit" placeholder="мг/сут" value="${prefill && prefill.unit || 'мг/сут'}">
-      </div>
-      <div class="field" style="flex:0 0 90px">
-        <label>Дней в этапе</label>
-        <input type="number" class="p-days-count" min="1" value="${prefill && prefill.days || 3}">
-      </div>
-    </div>
-    <div class="field" style="margin-bottom:8px">
-      <label>Описание приёма</label>
-      <input type="text" class="p-detail" placeholder="напр. 300 утром + 300 в обед" value="${prefill && prefill.detail || ''}">
-    </div>
-    <div class="field">
-      <label>Время приёма (для чек-листа)</label>
-      <div class="times-check">
-        <label><input type="checkbox" class="p-time" value="Утро" ${prefill && prefill.times && prefill.times.includes('Утро') ? 'checked':''}> Утро</label>
-        <label><input type="checkbox" class="p-time" value="Обед" ${prefill && prefill.times && prefill.times.includes('Обед') ? 'checked':''}> Обед</label>
-        <label><input type="checkbox" class="p-time" value="Вечер" ${prefill && prefill.times && prefill.times.includes('Вечер') ? 'checked':''}> Вечер</label>
-      </div>
-    </div>
-    <label class="maint-check"><input type="checkbox" class="p-maint" ${prefill && prefill.maintenance ? 'checked':''}> Это поддерживающая доза (далее без ограничения по дням)</label>
-  `;
-  holder.appendChild(box);
-}
+const ColorUtils = {
+  lighten(hex, pct) {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const nr = Math.round(r + (255 - r) * pct);
+    const ng = Math.round(g + (255 - g) * pct);
+    const nb = Math.round(b + (255 - b) * pct);
+    return `rgb(${nr},${ng},${nb})`;
+  },
+  darken(hex, pct) {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const nr = Math.round(r * (1 - pct));
+    const ng = Math.round(g * (1 - pct));
+    const nb = Math.round(b * (1 - pct));
+    return `rgb(${nr},${ng},${nb})`;
+  }
+};
 
-function resetForm(){
-  document.getElementById("f-name").value = "";
-  document.getElementById("f-sub").value = "";
-  document.getElementById("f-shape").value = "tablet-round";
-  document.getElementById("f-color").value = "#5B6FE0";
-  document.getElementById("f-startdate").value = "";
-  document.getElementById("f-taken").value = "0";
-  document.getElementById("phases-holder").innerHTML = "";
-  phaseCount = 0;
-  addPhaseRow();
-}
+// ==========================================
+// 3. ICON GENERATION
+// ==========================================
+function getMedIcon(type, color) {
+  const lightColor = ColorUtils.lighten(color, 0.55);
 
-function lighten(hex, pct){
-  hex = hex.replace('#','');
-  const r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
-  const nr = Math.round(r + (255-r)*pct), ng = Math.round(g + (255-g)*pct), nb = Math.round(b + (255-b)*pct);
-  return `rgb(${nr},${ng},${nb})`;
-}
-function darken(hex, pct){
-  hex = hex.replace('#','');
-  const r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
-  const nr = Math.round(r*(1-pct)), ng = Math.round(g*(1-pct)), nb = Math.round(b*(1-pct));
-  return `rgb(${nr},${ng},${nb})`;
-}
-
-function icon(type, color){
-  if(type === "tablet-round"){
+  if (type === "tablet-round") {
     return `<svg width="56" height="56" viewBox="0 0 56 56" fill="none">
       <rect x="4" y="4" width="48" height="48" rx="10" fill="#fff" stroke="${color}" stroke-width="1.4" opacity="0.9"/>
       <g opacity="0.55">
@@ -284,7 +266,7 @@ function icon(type, color){
       <path d="M34 40h12" stroke="#C9C6BD" stroke-width="0.9"/>
     </svg>`;
   }
-  if(type === "capsule"){
+  if (type === "capsule") {
     return `<svg width="56" height="56" viewBox="0 0 56 56" fill="none">
       <rect x="4" y="4" width="48" height="48" rx="10" fill="#fff" stroke="${color}" stroke-width="1.4" opacity="0.9"/>
       <g opacity="0.5">
@@ -292,9 +274,10 @@ function icon(type, color){
         <rect x="34" y="13" width="11" height="5.5" rx="2.75" fill="none" stroke="${color}" stroke-width="1" stroke-dasharray="2 2"/>
       </g>
       <rect x="31" y="32" width="17" height="9" rx="4.5" fill="#fff" stroke="#D8D5CC" stroke-width="1"/>
-      <rect x="31" y="32" width="8.5" height="9" rx="4.5" fill="${lighten(color,0.55)}" stroke="#D8D5CC" stroke-width="1"/>
+      <rect x="31" y="32" width="8.5" height="9" rx="4.5" fill="${lightColor}" stroke="#D8D5CC" stroke-width="1"/>
     </svg>`;
   }
+  // tablet-oval or default
   return `<svg width="56" height="56" viewBox="0 0 56 56" fill="none">
     <rect x="4" y="4" width="48" height="48" rx="10" fill="#fff" stroke="${color}" stroke-width="1.4" opacity="0.9"/>
     <g opacity="0.55">
@@ -307,108 +290,94 @@ function icon(type, color){
   </svg>`;
 }
 
-const TIME_PRIORITY = ['Утро','Обед','Вечер','Приём'];
+// ==========================================
+// 4. STATE & DOM REFERENCES
+// ==========================================
+let phaseCount = 0;
+const dom = {
+  form: {
+    name: document.getElementById("f-name"),
+    sub: document.getElementById("f-sub"),
+    shape: document.getElementById("f-shape"),
+    color: document.getElementById("f-color"),
+    startDate: document.getElementById("f-startdate"),
+    taken: document.getElementById("f-taken"),
+    phasesHolder: document.getElementById("phases-holder")
+  },
+  cardsContainer: document.getElementById("cards")
+};
 
-function buildCard(med){
-  const c = document.createElement("div");
-  c.className = "card";
-  const accent = med.color;
-  const soft = lighten(accent, 0.86);
-  const dark = darken(accent, 0.12);
-  const startDate = med.startDate ? new Date(med.startDate + "T00:00:00") : new Date();
+// ==========================================
+// 5. FORM & PHASE MANAGEMENT
+// ==========================================
+function createPhaseRow(prefill = null) {
+  phaseCount++;
+  const id = phaseCount;
+  const box = document.createElement("div");
+  box.className = "phase-box";
+  box.id = `phase-${id}`;
 
-  /* канонический набор колонок времени для всего препарата */
-  const timesSet = new Set();
-  med.phases.forEach(p => p.times.forEach(t => timesSet.add(t)));
-  let times = TIME_PRIORITY.filter(t => timesSet.has(t));
-  timesSet.forEach(t => { if(!times.includes(t)) times.push(t); });
-  if(times.length === 0) times = ["Приём"];
+  const p = prefill || {};
+  const day = p.day || '';
+  const dose = p.dose || '';
+  const unit = p.unit || 'мг/сут';
+  const days = p.days || 3;
+  const detail = p.detail || '';
+  const maintenance = p.maintenance || false;
+  const times = p.times || [];
 
-  /* шаги-схема со стрелками + диапазон дат на каждом этапе */
-  let cumDays = 0;
-  let stepsHtml = "";
-  med.steps.forEach((s, i) => {
-    const phaseDays = (med.phases[i] && med.phases[i].days) || 1;
-    const rangeStart = addDays(startDate, cumDays);
-    const rangeEnd = addDays(startDate, cumDays + phaseDays - 1);
-    const dateLabel = fmtRange(rangeStart, rangeEnd);
-    cumDays += phaseDays;
-
-    stepsHtml += `<div class="step" style="${s.maintenance ? `border-color:${accent};background:${soft};` : ""}">
-        <div class="day-tag">${s.day}</div>
-        <div class="date-sub">${dateLabel}</div>
-        <div class="dose">${s.dose}<small> ${s.unit}</small></div>
-        <div class="detail">${s.detail}</div>
-      </div>`;
-    if(i < med.steps.length - 1){
-      stepsHtml += `<div class="arrow" style="color:${dark}"><svg width="20" height="12" viewBox="0 0 20 12" fill="none"><path d="M1 6h16M12 1l6 5-6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
-    }
-  });
-
-  /* единая таблица-трекер на весь препарат: одинаковые колонки/строки во всех этапах */
-  let cum2 = 0;
-  let doseCounter = 0;
-  const takenCount = med.takenCount || 0;
-  let rowsHtml = "";
-  med.phases.forEach((p) => {
-    rowsHtml += `<tr class="phase-divider"><td colspan="${times.length + 1}">${p.label}${p.maintenance ? " · далее по этой же схеме" : ""}</td></tr>`;
-    for(let d = 1; d <= p.days; d++){
-      const date = addDays(startDate, cum2);
-      cum2++;
-      const cells = times.map(t => {
-        if(p.times.includes(t)){
-          doseCounter++;
-          const checked = doseCounter <= takenCount ? "checked" : "";
-          return `<td><input type="checkbox" class="dose-check" ${checked} style="accent-color:${dark}"></td>`;
-        }
-        return `<td class="cell-empty"></td>`;
-      }).join("");
-      rowsHtml += `<tr><td>День ${d}<span class="day-date">${fmtDate(date)}</span></td>${cells}</tr>`;
-    }
-  });
-  const headerCells = times.map(t => `<th>${t}</th>`).join("");
-  const tableHtml = `<div class="tracker-wrap">
-      <table class="tracker">
-        <thead><tr><th>&nbsp;</th>${headerCells}</tr></thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
-    </div>`;
-
-  c.innerHTML = `
-    <button class="delete-card" onclick="this.closest('.card').remove()">✕ Удалить</button>
-    <div class="card-head">
-      <div class="icon-box">${icon(med.icon, dark)}</div>
-      <div class="card-title">
-        <h2>${med.name}</h2>
-        <div class="sub">${med.sub}</div>
+  box.innerHTML = `
+    <span class="phase-num">Этап ${id}</span>
+    <button class="remove-phase" onclick="document.getElementById('phase-${id}').remove()">Удалить</button>
+    <div class="row" style="margin-bottom:8px">
+      <div class="field" style="flex:1 1 140px">
+        <label>Дни (подпись)</label>
+        <input type="text" class="p-day" placeholder="напр. 1–3 день" value="${day}">
       </div>
-      <div class="pill-tag" style="background:${soft};color:${dark}">по схеме</div>
+      <div class="field" style="flex:0 0 100px">
+        <label>Доза</label>
+        <input type="text" class="p-dose" placeholder="напр. 5" value="${dose}">
+      </div>
+      <div class="field" style="flex:0 0 120px">
+        <label>Единица</label>
+        <input type="text" class="p-unit" placeholder="мг/сут" value="${unit}">
+      </div>
+      <div class="field" style="flex:0 0 90px">
+        <label>Дней в этапе</label>
+        <input type="number" class="p-days-count" min="1" value="${days}">
+      </div>
     </div>
-    <div class="steps">${stepsHtml}</div>
-    ${tableHtml}
+    <div class="field" style="margin-bottom:8px">
+      <label>Описание приёма</label>
+      <input type="text" class="p-detail" placeholder="напр. 300 утром + 300 в обед" value="${detail}">
+    </div>
+    <div class="field">
+      <label>Время приёма (для чек-листа)</label>
+      <div class="times-check">
+        <label><input type="checkbox" class="p-time" value="Утро" ${times.includes('Утро') ? 'checked' : ''}> Утро</label>
+        <label><input type="checkbox" class="p-time" value="Обед" ${times.includes('Обед') ? 'checked' : ''}> Обед</label>
+        <label><input type="checkbox" class="p-time" value="Вечер" ${times.includes('Вечер') ? 'checked' : ''}> Вечер</label>
+      </div>
+    </div>
+    <label class="maint-check"><input type="checkbox" class="p-maint" ${maintenance ? 'checked' : ''}> Это поддерживающая доза (далее без ограничения по дням)</label>
   `;
-  return c;
+  dom.form.phasesHolder.appendChild(box);
 }
 
-function generateCard(){
-  const name = document.getElementById("f-name").value.trim();
-  const sub = document.getElementById("f-sub").value.trim();
-  const shape = document.getElementById("f-shape").value;
-  const color = document.getElementById("f-color").value;
-  const startdate = document.getElementById("f-startdate").value || todayISO();
-  const taken = parseInt(document.getElementById("f-taken").value) || 0;
+function resetForm() {
+  dom.form.name.value = "";
+  dom.form.sub.value = "";
+  dom.form.shape.value = CONFIG.defaultShape;
+  dom.form.color.value = CONFIG.defaultColor;
+  dom.form.startDate.value = "";
+  dom.form.taken.value = "0";
+  dom.form.phasesHolder.innerHTML = "";
+  phaseCount = 0;
+  createPhaseRow();
+}
 
-  if(!name){
-    alert("Укажите название препарата");
-    return;
-  }
-
-  const phaseBoxes = document.querySelectorAll("#phases-holder .phase-box");
-  if(phaseBoxes.length === 0){
-    alert("Добавьте хотя бы один этап дозирования");
-    return;
-  }
-
+function extractPhasesFromDOM() {
+  const phaseBoxes = dom.form.phasesHolder.querySelectorAll(".phase-box");
   const steps = [];
   const phases = [];
 
@@ -419,7 +388,7 @@ function generateCard(){
     const detail = box.querySelector(".p-detail").value.trim() || "";
     const daysCount = parseInt(box.querySelector(".p-days-count").value) || 1;
     const maintenance = box.querySelector(".p-maint").checked;
-    const timeChecks = Array.from(box.querySelectorAll(".p-time:checked")).map(i => i.value);
+    const timeChecks = Array.from(box.querySelectorAll(".p-time:checked")).map(cb => cb.value);
     const times = timeChecks.length ? timeChecks : ["Приём"];
 
     steps.push({ day, dose, unit, detail, maintenance });
@@ -431,33 +400,161 @@ function generateCard(){
     });
   });
 
-  const med = { name, sub: sub || "схема приёма", icon: shape, color, startDate: startdate, takenCount: taken, steps, phases };
-
-  document.getElementById("cards").appendChild(buildCard(med));
-  resetForm();
-  document.getElementById("cards").lastElementChild.scrollIntoView({behavior:"smooth", block:"center"});
+  return { steps, phases };
 }
 
-/* стартовые примеры */
+// ==========================================
+// 6. CARD GENERATION & RENDERING
+// ==========================================
+function buildCardHTML(med) {
+  const accent = med.color;
+  const soft = ColorUtils.lighten(accent, 0.86);
+  const dark = ColorUtils.darken(accent, 0.12);
+  const startDate = med.startDate ? new Date(med.startDate + "T00:00:00") : new Date();
+
+  // 1. Determine unique times across all phases
+  const timesSet = new Set();
+  med.phases.forEach(p => p.times.forEach(t => timesSet.add(t)));
+  let times = CONFIG.timePriority.filter(t => timesSet.has(t));
+  timesSet.forEach(t => { if (!times.includes(t)) times.push(t); });
+  if (times.length === 0) times = ["Приём"];
+
+  // 2. Build Steps HTML
+  let cumDays = 0;
+  let stepsHtml = "";
+  med.steps.forEach((s, i) => {
+    const phaseDays = (med.phases[i] && med.phases[i].days) || 1;
+    const rangeStart = DateUtils.addDays(startDate, cumDays);
+    const rangeEnd = DateUtils.addDays(startDate, cumDays + phaseDays - 1);
+    const dateLabel = DateUtils.fmtRange(rangeStart, rangeEnd);
+    cumDays += phaseDays;
+
+    const stepStyle = s.maintenance ? `border-color:${accent};background:${soft};` : "";
+    stepsHtml += `
+      <div class="step" style="${stepStyle}">
+        <div class="day-tag">${s.day}</div>
+        <div class="date-sub">${dateLabel}</div>
+        <div class="dose">${s.dose}<small> ${s.unit}</small></div>
+        <div class="detail">${s.detail}</div>
+      </div>`;
+
+    if (i < med.steps.length - 1) {
+      stepsHtml += `
+        <div class="arrow" style="color:${dark}">
+          <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
+            <path d="M1 6h16M12 1l6 5-6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>`;
+    }
+  });
+
+  // 3. Build Tracker Table HTML
+  let cum2 = 0;
+  let doseCounter = 0;
+  const takenCount = med.takenCount || 0;
+  let rowsHtml = "";
+
+  med.phases.forEach((p) => {
+    rowsHtml += `<tr class="phase-divider"><td colspan="${times.length + 1}">${p.label}${p.maintenance ? " · далее по этой же схеме" : ""}</td></tr>`;
+    for (let d = 1; d <= p.days; d++) {
+      const date = DateUtils.addDays(startDate, cum2);
+      cum2++;
+      const cells = times.map(t => {
+        if (p.times.includes(t)) {
+          doseCounter++;
+          const checked = doseCounter <= takenCount ? "checked" : "";
+          return `<td><input type="checkbox" class="dose-check" ${checked} style="accent-color:${dark}"></td>`;
+        }
+        return `<td class="cell-empty"></td>`;
+      }).join("");
+      rowsHtml += `<tr><td>День ${d}<span class="day-date">${DateUtils.fmtDate(date)}</span></td>${cells}</tr>`;
+    }
+  });
+
+  const headerCells = times.map(t => `<th>${t}</th>`).join("");
+  const tableHtml = `
+    <div class="tracker-wrap">
+      <table class="tracker">
+        <thead><tr><th>&nbsp;</th>${headerCells}</tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>`;
+
+  return `
+    <button class="delete-card" onclick="this.closest('.card').remove()">✕ Удалить</button>
+    <div class="card-head">
+      <div class="icon-box">${getMedIcon(med.icon, dark)}</div>
+      <div class="card-title">
+        <h2>${med.name}</h2>
+        <div class="sub">${med.sub}</div>
+      </div>
+      <div class="pill-tag" style="background:${soft};color:${dark}">по схеме</div>
+    </div>
+    <div class="steps">${stepsHtml}</div>
+    ${tableHtml}
+  `;
+}
+
+function createAndAppendCard(med) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = buildCardHTML(med);
+  dom.cardsContainer.appendChild(card);
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function handleGenerateCard() {
+  const name = dom.form.name.value.trim();
+  if (!name) {
+    alert("Укажите название препарата");
+    return;
+  }
+
+  const phaseBoxes = dom.form.phasesHolder.querySelectorAll(".phase-box");
+  if (phaseBoxes.length === 0) {
+    alert("Добавьте хотя бы один этап дозирования");
+    return;
+  }
+
+  const { steps, phases } = extractPhasesFromDOM();
+
+  const med = {
+    name,
+    sub: dom.form.sub.value.trim() || "схема приёма",
+    icon: dom.form.shape.value,
+    color: dom.form.color.value,
+    startDate: dom.form.startDate.value || DateUtils.todayISO(),
+    takenCount: parseInt(dom.form.taken.value) || 0,
+    steps,
+    phases
+  };
+
+  createAndAppendCard(med);
+  resetForm();
+}
+
+// ==========================================
+// 7. INITIALIZATION & DEFAULT DATA
+// ==========================================
 const DEFAULT_MEDS = [
   {
     name: "Оланзапин",
     sub: "торговое название «Заласта»",
     icon: "tablet-round",
     color: "#5B6FE0",
-    startDate: isoOffset(-3),
+    startDate: DateUtils.isoOffset(-3),
     takenCount: 3,
     steps: [
       { day: "1–3 день", dose: "2.5", unit: "мг/сут", detail: "1 приём в сутки" },
       { day: "4–6 день", dose: "5", unit: "мг/сут", detail: "1 приём в сутки" },
       { day: "7–9 день", dose: "7.5", unit: "мг/сут", detail: "1 приём в сутки" },
-      { day: "с 10 дня", dose: "10", unit: "мг/сут", detail: "поддерживающая доза", maintenance:true }
+      { day: "с 10 дня", dose: "10", unit: "мг/сут", detail: "поддерживающая доза", maintenance: true }
     ],
     phases: [
       { label: "2.5 мг/сут · 3 дня", days: 3, times: ["Приём"] },
       { label: "5 мг/сут · 3 дня", days: 3, times: ["Приём"] },
       { label: "7.5 мг/сут · 3 дня", days: 3, times: ["Приём"] },
-      { label: "10 мг/сут · далее", days: 7, times: ["Приём"], maintenance:true }
+      { label: "10 мг/сут · далее", days: 7, times: ["Приём"], maintenance: true }
     ]
   },
   {
@@ -465,26 +562,26 @@ const DEFAULT_MEDS = [
     sub: "торговое название «Депакин Хроно»",
     icon: "tablet-oval",
     color: "#3E9A78",
-    startDate: isoOffset(-2),
+    startDate: DateUtils.isoOffset(-2),
     takenCount: 3,
     steps: [
       { day: "1–3 день", dose: "300", unit: "мг/сут", detail: "300 мг утром" },
       { day: "4–6 день", dose: "600", unit: "мг/сут", detail: "300 утро + 300 обед" },
       { day: "7–9 день", dose: "900", unit: "мг/сут", detail: "300×3: утро / обед / вечер" },
-      { day: "с 10 дня", dose: "1200", unit: "мг/сут", detail: "поддерживающая доза", maintenance:true }
+      { day: "с 10 дня", dose: "1200", unit: "мг/сут", detail: "поддерживающая доза", maintenance: true }
     ],
     phases: [
       { label: "300 мг/сут · 3 дня", days: 3, times: ["Утро"] },
-      { label: "600 мг/сут · 3 дня", days: 3, times: ["Утро","Обед"] },
-      { label: "900 мг/сут · 3 дня", days: 3, times: ["Утро","Обед","Вечер"] },
-      { label: "1200 мг/сут · далее", days: 7, times: ["Утро","Обед","Вечер"], maintenance:true }
+      { label: "600 мг/сут · 3 дня", days: 3, times: ["Утро", "Обед"] },
+      { label: "900 мг/сут · 3 дня", days: 3, times: ["Утро", "Обед", "Вечер"] },
+      { label: "1200 мг/сут · далее", days: 7, times: ["Утро", "Обед", "Вечер"], maintenance: true }
     ]
   }
 ];
 
-const container = document.getElementById("cards");
-DEFAULT_MEDS.forEach(m => container.appendChild(buildCard(m)));
-addPhaseRow();
+// Initialize
+DEFAULT_MEDS.forEach(med => createAndAppendCard(med));
+createPhaseRow();
 </script>
 </body>
 </html>
