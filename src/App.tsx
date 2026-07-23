@@ -57,9 +57,9 @@ function App() {
   const [meds, setMeds] = useState<Medication[]>([]);
 
   useEffect(() => {
-    const urlMed = StorageUtils.decodeFromURL();
-    if (urlMed) {
-      setMeds([urlMed]);
+    const urlMeds = StorageUtils.decodeFromURL();
+    if (urlMeds && urlMeds.length > 0) {
+      setMeds(urlMeds);
       window.history.replaceState({}, document.title, window.location.pathname);
     } else {
       setMeds(DEFAULT_MEDS);
@@ -70,8 +70,8 @@ function App() {
     setMeds(prev => [newMed, ...prev]);
   };
 
-  const handleImport = (newMed: Medication) => {
-    setMeds(prev => [newMed, ...prev]);
+  const handleImport = (newMeds: Medication[]) => {
+    setMeds(prev => [...newMeds, ...prev]);
   };
 
   const handleDelete = (id: string) => {
@@ -95,7 +95,7 @@ function App() {
 
       <BuilderForm onGenerate={handleGenerate} />
 
-      <FileControls onImport={handleImport} />
+      <FileControls meds={meds} onImport={handleImport} />
 
       <div id="cards">
         {meds.map(med => (

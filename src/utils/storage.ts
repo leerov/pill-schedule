@@ -21,26 +21,27 @@ export const StorageUtils = {
     }
     localStorage.setItem(`${STORAGE_PREFIX}${medId}`, JSON.stringify(Array.from(checkedDoses)));
   },
-  exportToFile(med: Medication): void {
-    const dataStr = JSON.stringify(med, null, 2);
+  exportToFile(meds: Medication[]): void {
+    const dataStr = JSON.stringify(meds, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${med.name.replace(/\s+/g, '_')}_scheme.json`;
+    a.download = `med_schemes.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   },
-  importFromFile(file: File): Promise<Medication> {
+  importFromFile(file: File): Promise<Medication[]> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const med = JSON.parse(e.target?.result as string) as Medication;
-          med.id = crypto.randomUUID();
-          resolve(med);
+          const parsed = JSON.parse(e.target?.result as string);
+          const meds = Array.isArray(parsed) ? parsed : [parsed];
+          const newMeds = meds.map(med => ({ ...med, id: crypto.randomUUID() }));
+          resolve(newMeds);
         } catch (err) {
           reject(new Error('Invalid JSON file'));
         }
@@ -49,20 +50,20 @@ export const StorageUtils = {
       reader.readAsText(file);
     });
   },
-  encodeToURL(med: Medication): string {
-    const json = JSON.stringify(med);
+  encodeToURL(meds: Medication[]): string {
+    const json = JSON.stringify(meds);
     const encoded = btoa(unescape(encodeURIComponent(json)));
     return `?schema=${encoded}`;
   },
-  decodeFromURL(): Medication | null {
+  decodeFromURL(): Medication[] | null {
     const params = new URLSearchParams(window.location.search);
     const schema = params.get('schema');
     if (!schema) return null;
     try {
       const json = decodeURIComponent(escape(atob(schema)));
-      const med = JSON.parse(json) as Medication;
-      med.id = crypto.randomUUID();
-      return med;
+      const parsed = JSON.parse(json);
+      const meds = Array.isArray(parsed) ? parsed : [parsed];
+      return meds.map(med => ({ ...med, id: crypto.randomUUID() }));
     } catch {
       return null;
     }
