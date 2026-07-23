@@ -104,7 +104,7 @@ function App() {
               med={med}
               onDelete={() => handleDelete(med.id)}
               onShare={() => handleShare(med)}
-              onExport={() => StorageUtils.exportToFile(med)}
+              onExport={() => StorageUtils.exportToFile([med])}
             />
             <TrackerTable
               med={med}

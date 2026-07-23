@@ -76,7 +76,7 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate }) => {
       id: crypto.randomUUID(),
       name: name.trim(),
       sub: sub.trim() || 'схема приёма',
-      icon: shape,
+      icon: shape as 'tablet-round' | 'tablet-oval' | 'capsule',
       color,
       startDate,
       takenCount: taken,
