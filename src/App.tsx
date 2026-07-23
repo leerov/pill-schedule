@@ -80,7 +80,7 @@ function App() {
   };
 
   const handleShare = (med: Medication) => {
-    const url = window.location.origin + window.location.pathname + StorageUtils.encodeToURL(med);
+    const url = window.location.origin + window.location.pathname + StorageUtils.encodeToURL([med]);
     navigator.clipboard.writeText(url).then(() => {
       alert("Ссылка на схему скопирована в буфер обмена!");
     });
