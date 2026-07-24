@@ -304,7 +304,7 @@ input[type=checkbox].dose-check { width: 17px; height: 17px; cursor: pointer; }
 @media print {
   @page { size: A4; margin: 9mm 11mm; }
   body { background: #fff; }
-  .top-actions-row, .builder, .delete-card, .builder-actions, .modal-overlay, .close-modal, .delete-med-btn { display: none !important; }
+  .top-actions-row, .builder, .delete-card, .builder-actions, .modal-overlay, .close-modal, .delete-med-btn, .intro-card { display: none !important; }
   .eyebrow, .lead { display: none; }
   .wrap { max-width: 100%; padding: 0; }
   header { margin-bottom: 8px; }
