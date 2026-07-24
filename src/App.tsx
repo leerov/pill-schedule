@@ -125,7 +125,7 @@ function App() {
 
       <div id="cards">
         {meds.map(med => (
-          <React.Fragment key={med.id}>
+          <div className="med-block" key={med.id}>
             <div className="card-wrapper">
               <ScheduleCard
                 med={med}
@@ -139,7 +139,7 @@ function App() {
               med={med}
               onUpdate={() => setMeds(prev => [...prev])}
             />
-          </React.Fragment>
+          </div>
         ))}
       </div>
       <div className="footer-note">Сформировано автоматически по назначению врача</div>

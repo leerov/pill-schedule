@@ -198,7 +198,7 @@ h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px; margin: 
 .card-wrapper {
   position: relative;
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 12px;
   margin-top: 16px;
 }
@@ -208,7 +208,6 @@ h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px; margin: 
   border: 1px solid var(--line);
   color: var(--ink-soft);
   width: 44px;
-  height: 44px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -252,6 +251,8 @@ tr.phase-divider td { background: #F7F4ED; font-size: 11px; font-weight: 700; co
 td.cell-empty { background: repeating-linear-gradient(135deg, transparent, transparent 5px, #F1EEE6 5px, #F1EEE6 6px); }
 .tracker-wrap { padding: 0 20px 16px; }
 input[type=checkbox].dose-check { width: 17px; height: 17px; cursor: pointer; }
+
+.med-block { margin-bottom: 32px; }
 
 .footer-note { margin-top: 22px; font-size: 11.5px; color: var(--ink-soft); text-align: center; }
 
@@ -312,6 +313,7 @@ input[type=checkbox].dose-check { width: 17px; height: 17px; cursor: pointer; }
   .notice { padding: 8px 12px; font-size: 10.5px; margin-top: 0; border-radius: 8px; }
   .notice svg { width: 14px; height: 14px; }
 
+  .med-block { break-inside: avoid; page-break-inside: avoid; margin-bottom: 16px; }
   .card { box-shadow: none; border: 1px solid #d8d4c9; border-radius: 10px; margin-top: 9px; break-inside: avoid; }
   .card-head { padding: 10px 14px 8px; gap: 9px; }
   .card-actions, .edit-btn { display: none !important; }
