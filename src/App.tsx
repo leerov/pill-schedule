@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import { Medication } from './types';
 import { DateUtils } from './utils/dateUtils';
 import { StorageUtils } from './utils/storage';
@@ -7,6 +6,7 @@ import { ScheduleCard } from './components/ScheduleCard';
 import { TrackerTable } from './components/TrackerTable';
 import { FileControls } from './components/FileControls';
 import './index.css';
+import { useEffect, useState } from 'react';
 
 function App() {
   const [meds, setMeds] = useState<Medication[]>([]);
