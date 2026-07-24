@@ -70,9 +70,10 @@ function App() {
 
   return (
     <div className="wrap">
-      <header>
-        <div className="eyebrow">Конструктор памяток</div>
-        <p className="lead">Заполните параметры препарата и этапы повышения дозы — карточка с иконкой, схемой со стрелками и единым чек-листом приёма сформируется автоматически.</p>
+      <header className="intro-card">
+        <div className="intro-title">Pill Schedule by leerov</div>
+        <div className="intro-eyebrow">Конструктор памяток</div>
+        <p className="intro-lead">Заполните параметры препарата и этапы повышения дозы — карточка с иконкой, схемой со стрелками и единым чек-листом приёма сформируется автоматически.</p>
       </header>
 
       <div className="top-actions-row">

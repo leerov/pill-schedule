@@ -1,4 +1,4 @@
-# Генератор схем приёма препаратов (Pill Schedule)
+# Pill Schedule (Генератор схем приёма препаратов)
 
 Проект на React + TypeScript + Vite.
 
