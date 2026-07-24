@@ -96,8 +96,8 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onDelete, onEdi
           <h2>{med.name}</h2>
           <div className="sub">{med.sub}</div>
         </div>
-        <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-          <button className="ghost-btn" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={onEdit}>✏️ Редактировать</button>
+        <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }} className="card-actions">
+          <button className="ghost-btn edit-btn" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={onEdit}>✏️ Редактировать</button>
         </div>
       </div>
       <div className="steps" dangerouslySetInnerHTML={{ __html: stepsHtml }} />
