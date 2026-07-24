@@ -75,13 +75,14 @@ function App() {
         <p className="lead">Заполните параметры препарата и этапы повышения дозы — карточка с иконкой, схемой со стрелками и единым чек-листом приёма сформируется автоматически.</p>
       </header>
 
-      <button
-        className="solid-btn"
-        onClick={() => setShowBuilder(true)}
-        style={{ marginBottom: '20px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '15px', padding: '12px 18px' }}
-      >
-        <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span> Добавить препарат
-      </button>
+      <div className="top-actions-row">
+        <button className="solid-btn" onClick={() => setShowBuilder(true)}>
+          <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span> Добавить препарат
+        </button>
+        <button className="ghost-btn" onClick={() => window.print()}>
+          🖨️ Распечатать памятку
+        </button>
+      </div>
 
       {showBuilder && (
         <div className="modal-overlay" onClick={() => { setShowBuilder(false); setEditingMedId(null); }}>
@@ -124,21 +125,21 @@ function App() {
       <div id="cards">
         {meds.map(med => (
           <React.Fragment key={med.id}>
-            <ScheduleCard
-              med={med}
-              onDelete={() => handleDelete(med.id)}
-              onEdit={() => handleEdit(med.id)}
-            />
+            <div className="card-wrapper">
+              <ScheduleCard
+                med={med}
+                onEdit={() => handleEdit(med.id)}
+              />
+              <button className="delete-med-btn" onClick={() => handleDelete(med.id)} title="Удалить схему">
+                🗑️
+              </button>
+            </div>
             <TrackerTable
               med={med}
               onUpdate={() => setMeds(prev => [...prev])}
             />
           </React.Fragment>
         ))}
-      </div>
-
-      <div className="print-btn">
-        <button className="solid-btn" onClick={() => window.print()}>Распечатать памятку</button>
       </div>
       <div className="footer-note">Сформировано автоматически по назначению врача</div>
     </div>

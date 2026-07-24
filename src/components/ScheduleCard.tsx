@@ -43,11 +43,10 @@ const getMedIcon = (type: string, color: string) => {
 
 interface ScheduleCardProps {
   med: Medication;
-  onDelete: () => void;
   onEdit: () => void;
 }
 
-export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onDelete, onEdit }) => {
+export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onEdit }) => {
   const accent = med.color;
   const soft = ColorUtils.lighten(accent, 0.86);
   const dark = ColorUtils.darken(accent, 0.12);
@@ -88,8 +87,7 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onDelete, onEdi
   });
 
   return (
-    <div className="card">
-      <button className="delete-card" onClick={onDelete}>✕ Удалить</button>
+    <div className="card" style={{ flex: 1 }}>
       <div className="card-head">
         <div className="icon-box" dangerouslySetInnerHTML={{ __html: getMedIcon(med.icon, dark) }} />
         <div className="card-title">
