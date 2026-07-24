@@ -12,6 +12,7 @@ function App() {
   const [meds, setMeds] = useState<Medication[]>([]);
   const [editingMedId, setEditingMedId] = useState<string | null>(null);
   const [globalStartDate, setGlobalStartDate] = useState(DateUtils.todayISO());
+  const [showBuilder, setShowBuilder] = useState(false);
 
   useEffect(() => {
     const urlMeds = StorageUtils.decodeFromURL();
@@ -76,12 +77,36 @@ function App() {
         <p className="lead">Заполните параметры препарата и этапы повышения дозы — карточка с иконкой, схемой со стрелками и единым чек-листом приёма сформируется автоматически.</p>
       </header>
 
-      <BuilderForm
-        onGenerate={handleGenerate}
-        editingMed={editingMed}
-        onUpdate={handleUpdate}
-        onCancelEdit={() => setEditingMedId(null)}
-      />
+      <button
+        className="solid-btn"
+        onClick={() => setShowBuilder(true)}
+        style={{ marginBottom: '20px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '15px', padding: '12px 18px' }}
+      >
+        <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span> Добавить препарат
+      </button>
+
+      {showBuilder && (
+        <div className="modal-overlay" onClick={() => { setShowBuilder(false); setEditingMedId(null); }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="close-modal" onClick={() => { setShowBuilder(false); setEditingMedId(null); }}>✕</button>
+            <BuilderForm
+              onGenerate={(med) => {
+                handleGenerate(med);
+                setShowBuilder(false);
+              }}
+              editingMed={editingMed}
+              onUpdate={(med) => {
+                handleUpdate(med);
+                setShowBuilder(false);
+              }}
+              onCancelEdit={() => {
+                setEditingMedId(null);
+                setShowBuilder(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="builder-actions" style={{ marginBottom: '20px', justifyContent: 'flex-start', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
         <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-soft)' }}>Общая дата начала:</label>
