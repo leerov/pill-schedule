@@ -59,9 +59,7 @@ function App() {
 
   const handleEdit = (id: string) => {
     setEditingMedId(id);
-    setTimeout(() => {
-      document.querySelector('.builder')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    setShowBuilder(true);
   };
 
   const applyGlobalStartDate = () => {
