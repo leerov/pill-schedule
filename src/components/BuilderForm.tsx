@@ -128,7 +128,7 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
 
   return (
     <div className="builder">
-      <h3>Новый препарат</h3>
+      <h3>Препарат</h3>
       <div className="row">
         <div className="field" style={{flex: '2 1 220px'}}>
           <label>Название (МНН)</label>

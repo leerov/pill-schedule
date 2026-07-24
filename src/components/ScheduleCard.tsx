@@ -95,7 +95,7 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onEdit }) => {
           <div className="sub">{med.sub}</div>
         </div>
         <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }} className="card-actions">
-          <button className="ghost-btn" onClick={onEdit}>✏️ Редактировать</button>
+          <button className="ghost-btn" onClick={onEdit}>✏️</button>
         </div>
       </div>
       <div className="steps" dangerouslySetInnerHTML={{ __html: stepsHtml }} />

@@ -116,7 +116,7 @@ function App() {
           onChange={e => setGlobalStartDate(e.target.value)}
           style={{ border: '1px solid var(--line)', borderRadius: '8px', padding: '6px 10px', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}
         />
-        <button className="ghost-btn" style={{ fontSize: '12px', padding: '6px 12px' }} onClick={applyGlobalStartDate}>
+        <button className="solid-btn" style={{ fontSize: '12px', padding: '6px 12px' }} onClick={applyGlobalStartDate}>
           Применить ко всем
         </button>
       </div>
@@ -142,7 +142,7 @@ function App() {
           </div>
         ))}
       </div>
-      <div className="footer-note">Сформировано автоматически по назначению врача</div>
+      {/* <div className="footer-note">Сформировано автоматически по назначению врача</div> */}
     </div>
   );
 }

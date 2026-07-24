@@ -55,7 +55,7 @@ export const FileControls: React.FC<FileControlsProps> = ({ meds, onImport }) =>
       {/* <button className="ghost-btn" onClick={handleShareAll}>
         🔗 Скопировать ссылку
       </button> */}
-      <button className="ghost-btn" onClick={handleExportAll}>
+      <button className="solid-btn" onClick={handleExportAll}>
         💾 Сохранить схему в файл
       </button>
       <button className="ghost-btn" onClick={() => fileInputRef.current?.click()}>
