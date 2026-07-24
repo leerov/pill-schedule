@@ -4,6 +4,9 @@ import { DateUtils } from '../utils/dateUtils';
 
 interface BuilderFormProps {
   onGenerate: (med: Medication) => void;
+  editingMed?: Medication | null;
+  onUpdate?: (med: Medication) => void;
+  onCancelEdit?: () => void;
 }
 
 const CONFIG = {
@@ -11,16 +14,41 @@ const CONFIG = {
   defaultColor: '#5B6FE0'
 };
 
-export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate }) => {
-  const [name, setName] = useState('');
-  const [sub, setSub] = useState('');
-  const [shape, setShape] = useState(CONFIG.defaultShape);
-  const [color, setColor] = useState(CONFIG.defaultColor);
-  const [startDate, setStartDate] = useState(DateUtils.todayISO());
-  const [taken, setTaken] = useState(0);
+export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed, onUpdate, onCancelEdit }) => {
+  const [name, setName] = useState(editingMed?.name || '');
+  const [sub, setSub] = useState(editingMed?.sub || '');
+  const [shape, setShape] = useState<'tablet-round' | 'tablet-oval' | 'capsule'>(editingMed?.icon || CONFIG.defaultShape);
+  const [color, setColor] = useState(editingMed?.color || CONFIG.defaultColor);
+  const [startDate, setStartDate] = useState(editingMed?.startDate || DateUtils.todayISO());
+  const [taken, setTaken] = useState(editingMed?.takenCount || 0);
   const [phases, setPhases] = useState<FormPhase[]>([{
     day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: []
   }]);
+
+  React.useEffect(() => {
+    if (editingMed) {
+      setName(editingMed.name);
+      setSub(editingMed.sub);
+      setShape(editingMed.icon);
+      setColor(editingMed.color);
+      setStartDate(editingMed.startDate);
+      setTaken(editingMed.takenCount);
+
+      const newPhases: FormPhase[] = editingMed.phases.map((p, idx) => {
+        const step = editingMed.steps[idx] || { day: '', dose: '', unit: '', detail: '', maintenance: false };
+        return {
+          day: step.day,
+          dose: step.dose,
+          unit: step.unit,
+          days: p.days,
+          detail: step.detail,
+          maintenance: p.maintenance || false,
+          times: p.times
+        };
+      });
+      setPhases(newPhases.length > 0 ? newPhases : [{ day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
+    }
+  }, [editingMed]);
 
   const addPhase = () => {
     setPhases([...phases, { day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
@@ -47,7 +75,7 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate }) => {
     setPhases(newPhases);
   };
 
-  const handleGenerate = () => {
+  const handleSubmit = () => {
     if (!name.trim()) {
       alert("Укажите название препарата");
       return;
@@ -72,8 +100,8 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate }) => {
       maintenance: p.maintenance
     }));
 
-    onGenerate({
-      id: crypto.randomUUID(),
+    const medData = {
+      id: editingMed ? editingMed.id : crypto.randomUUID(),
       name: name.trim(),
       sub: sub.trim() || 'схема приёма',
       icon: shape as 'tablet-round' | 'tablet-oval' | 'capsule',
@@ -82,15 +110,20 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate }) => {
       takenCount: taken,
       steps,
       phases: medPhases
-    });
+    };
 
-    setName('');
-    setSub('');
-    setShape(CONFIG.defaultShape);
-    setColor(CONFIG.defaultColor);
-    setStartDate(DateUtils.todayISO());
-    setTaken(0);
-    setPhases([{ day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
+    if (editingMed && onUpdate) {
+      onUpdate(medData);
+    } else {
+      onGenerate(medData);
+      setName('');
+      setSub('');
+      setShape(CONFIG.defaultShape);
+      setColor(CONFIG.defaultColor);
+      setStartDate(DateUtils.todayISO());
+      setTaken(0);
+      setPhases([{ day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
+    }
   };
 
   return (
@@ -183,12 +216,19 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate }) => {
       </div>
 
       <div className="builder-actions" style={{marginTop: '20px', borderTop: '1px solid var(--line)', paddingTop: '16px'}}>
-        <button className="solid-btn" onClick={handleGenerate}>Сформировать карточку</button>
-        <button className="ghost-btn" onClick={() => {
-          setName(''); setSub(''); setShape(CONFIG.defaultShape); setColor(CONFIG.defaultColor);
-          setStartDate(DateUtils.todayISO()); setTaken(0);
-          setPhases([{ day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
-        }}>Очистить форму</button>
+        <button className="solid-btn" onClick={handleSubmit}>
+          {editingMed ? 'Обновить препарат' : 'Сформировать карточку'}
+        </button>
+        {editingMed && onCancelEdit && (
+          <button className="ghost-btn" onClick={onCancelEdit}>Отмена</button>
+        )}
+        {!editingMed && (
+          <button className="ghost-btn" onClick={() => {
+            setName(''); setSub(''); setShape(CONFIG.defaultShape); setColor(CONFIG.defaultColor);
+            setStartDate(DateUtils.todayISO()); setTaken(0);
+            setPhases([{ day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
+          }}>Очистить форму</button>
+        )}
       </div>
     </div>
   );

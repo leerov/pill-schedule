@@ -10,6 +10,8 @@ import './index.css';
 
 function App() {
   const [meds, setMeds] = useState<Medication[]>([]);
+  const [editingMedId, setEditingMedId] = useState<string | null>(null);
+  const [globalStartDate, setGlobalStartDate] = useState(DateUtils.todayISO());
 
   useEffect(() => {
     const urlMeds = StorageUtils.decodeFromURL();
@@ -41,6 +43,11 @@ function App() {
     setMeds(prev => [newMed, ...prev]);
   };
 
+  const handleUpdate = (updatedMed: Medication) => {
+    setMeds(prev => prev.map(m => m.id === updatedMed.id ? updatedMed : m));
+    setEditingMedId(null);
+  };
+
   const handleImport = (newMeds: Medication[]) => {
     setMeds(prev => [...newMeds, ...prev]);
   };
@@ -49,6 +56,19 @@ function App() {
     setMeds(prev => prev.filter(m => m.id !== id));
   };
 
+  const handleEdit = (id: string) => {
+    setEditingMedId(id);
+    setTimeout(() => {
+      document.querySelector('.builder')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const applyGlobalStartDate = () => {
+    setMeds(prev => prev.map(med => ({ ...med, startDate: globalStartDate })));
+  };
+
+  const editingMed = meds.find(m => m.id === editingMedId) || null;
+
   return (
     <div className="wrap">
       <header>
@@ -56,7 +76,25 @@ function App() {
         <p className="lead">Заполните параметры препарата и этапы повышения дозы — карточка с иконкой, схемой со стрелками и единым чек-листом приёма сформируется автоматически.</p>
       </header>
 
-      <BuilderForm onGenerate={handleGenerate} />
+      <BuilderForm
+        onGenerate={handleGenerate}
+        editingMed={editingMed}
+        onUpdate={handleUpdate}
+        onCancelEdit={() => setEditingMedId(null)}
+      />
+
+      <div className="builder-actions" style={{ marginBottom: '20px', justifyContent: 'flex-start', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-soft)' }}>Общая дата начала:</label>
+        <input
+          type="date"
+          value={globalStartDate}
+          onChange={e => setGlobalStartDate(e.target.value)}
+          style={{ border: '1px solid var(--line)', borderRadius: '8px', padding: '6px 10px', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}
+        />
+        <button className="ghost-btn" style={{ fontSize: '12px', padding: '6px 12px' }} onClick={applyGlobalStartDate}>
+          Применить ко всем
+        </button>
+      </div>
 
       <FileControls meds={meds} onImport={handleImport} />
 
@@ -66,6 +104,7 @@ function App() {
             <ScheduleCard
               med={med}
               onDelete={() => handleDelete(med.id)}
+              onEdit={() => handleEdit(med.id)}
             />
             <TrackerTable
               med={med}

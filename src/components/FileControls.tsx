@@ -44,7 +44,7 @@ export const FileControls: React.FC<FileControlsProps> = ({ meds, onImport }) =>
   };
 
   return (
-    <div className="builder-actions" style={{ marginBottom: '20px', justifyContent: 'flex-end', gap: '10px' }}>
+    <div className="builder-actions" style={{ marginBottom: '20px', justifyContent: 'center', gap: '10px' }}>
       <input
         type="file"
         ref={fileInputRef}
@@ -53,13 +53,13 @@ export const FileControls: React.FC<FileControlsProps> = ({ meds, onImport }) =>
         onChange={handleFileChange}
       />
       <button className="ghost-btn" onClick={handleShareAll}>
-        🔗 Поделиться всеми
+        🔗 Скопировать ссылку
       </button>
       <button className="ghost-btn" onClick={handleExportAll}>
-        💾 Сохранить все
+        💾 Сохранить схему в файл
       </button>
       <button className="ghost-btn" onClick={() => fileInputRef.current?.click()}>
-        📂 Загрузить схемы
+        📂 Загрузить схему из файла
       </button>
     </div>
   );
