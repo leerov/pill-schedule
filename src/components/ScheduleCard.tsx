@@ -44,11 +44,9 @@ const getMedIcon = (type: string, color: string) => {
 interface ScheduleCardProps {
   med: Medication;
   onDelete: () => void;
-  onShare: () => void;
-  onExport: () => void;
 }
 
-export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onDelete, onShare, onExport }) => {
+export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onDelete }) => {
   const accent = med.color;
   const soft = ColorUtils.lighten(accent, 0.86);
   const dark = ColorUtils.darken(accent, 0.12);
@@ -97,10 +95,7 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onDelete, onSha
           <h2>{med.name}</h2>
           <div className="sub">{med.sub}</div>
         </div>
-        <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-          <button className="ghost-btn" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={onShare}>🔗 Поделиться</button>
-          <button className="ghost-btn" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={onExport}>💾 Сохранить</button>
-        </div>
+        <div style={{ marginLeft: 'auto' }} />
       </div>
       <div className="steps" dangerouslySetInnerHTML={{ __html: stepsHtml }} />
     </div>

@@ -3,24 +3,6 @@ import { Medication } from '../types';
 const STORAGE_PREFIX = 'med_tracker_';
 
 export const StorageUtils = {
-  getCheckedDoses(medId: string): Set<number> {
-    const data = localStorage.getItem(`${STORAGE_PREFIX}${medId}`);
-    if (!data) return new Set();
-    try {
-      return new Set(JSON.parse(data));
-    } catch {
-      return new Set();
-    }
-  },
-  setCheckedDose(medId: string, doseIndex: number, checked: boolean): void {
-    const checkedDoses = this.getCheckedDoses(medId);
-    if (checked) {
-      checkedDoses.add(doseIndex);
-    } else {
-      checkedDoses.delete(doseIndex);
-    }
-    localStorage.setItem(`${STORAGE_PREFIX}${medId}`, JSON.stringify(Array.from(checkedDoses)));
-  },
   exportToFile(meds: Medication[]): void {
     const dataStr = JSON.stringify(meds, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });

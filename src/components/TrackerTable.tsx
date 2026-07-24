@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Medication } from '../types';
 import { DateUtils } from '../utils/dateUtils';
 import { ColorUtils } from '../utils/colorUtils';
-import { StorageUtils } from '../utils/storage';
 
 interface TrackerTableProps {
   med: Medication;
@@ -10,6 +9,7 @@ interface TrackerTableProps {
 }
 
 export const TrackerTable: React.FC<TrackerTableProps> = ({ med, onUpdate }) => {
+  const [checkedDoses, setCheckedDoses] = useState<Set<number>>(new Set());
   const startDate = med.startDate ? new Date(med.startDate + "T00:00:00") : new Date();
   const timesSet = new Set<string>();
   med.phases.forEach(p => p.times.forEach(t => timesSet.add(t)));
@@ -18,7 +18,6 @@ export const TrackerTable: React.FC<TrackerTableProps> = ({ med, onUpdate }) => 
   timesSet.forEach(t => { if (!times.includes(t)) times.push(t); });
   if (times.length === 0) times = ["Приём"];
 
-  const checkedDoses = StorageUtils.getCheckedDoses(med.id);
   const dark = ColorUtils.darken(med.color, 0.12);
 
   let cum2 = 0;
@@ -46,7 +45,13 @@ export const TrackerTable: React.FC<TrackerTableProps> = ({ med, onUpdate }) => 
                 className="dose-check"
                 checked={isChecked}
                 onChange={(e) => {
-                  StorageUtils.setCheckedDose(med.id, currentDoseIndex, e.target.checked);
+                  const newChecked = new Set(checkedDoses);
+                  if (e.target.checked) {
+                    newChecked.add(currentDoseIndex);
+                  } else {
+                    newChecked.delete(currentDoseIndex);
+                  }
+                  setCheckedDoses(newChecked);
                   onUpdate();
                 }}
                 style={{ accentColor: dark }}
