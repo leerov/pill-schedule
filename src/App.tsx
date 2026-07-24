@@ -80,7 +80,7 @@ function App() {
         <button className="solid-btn" onClick={() => setShowBuilder(true)}>
           <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span> Добавить препарат
         </button>
-        <button className="ghost-btn" onClick={() => window.print()}>
+        <button className="solid-btn" onClick={() => window.print()}>
           🖨️ Распечатать памятку
         </button>
       </div>

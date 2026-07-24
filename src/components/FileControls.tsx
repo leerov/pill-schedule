@@ -30,7 +30,7 @@ export const FileControls: React.FC<FileControlsProps> = ({ meds, onImport }) =>
     StorageUtils.exportToFile(meds);
   };
 
-  // const handleShareAll = () => {
+  // const   = () => {
   //   if (meds.length === 0) {
   //     alert("Нет схем для обмена");
   //     return;
@@ -55,7 +55,7 @@ export const FileControls: React.FC<FileControlsProps> = ({ meds, onImport }) =>
       {/* <button className="ghost-btn" onClick={handleShareAll}>
         🔗 Скопировать ссылку
       </button> */}
-      <button className="solid-btn" onClick={handleExportAll}>
+      <button className="ghost-btn" onClick={handleExportAll}>
         💾 Сохранить схему в файл
       </button>
       <button className="ghost-btn" onClick={() => fileInputRef.current?.click()}>
