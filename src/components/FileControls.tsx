@@ -30,18 +30,18 @@ export const FileControls: React.FC<FileControlsProps> = ({ meds, onImport }) =>
     StorageUtils.exportToFile(meds);
   };
 
-  const handleShareAll = () => {
-    if (meds.length === 0) {
-      alert("Нет схем для обмена");
-      return;
-    }
-    const url = window.location.origin + window.location.pathname + StorageUtils.encodeToURL(meds);
-    navigator.clipboard.writeText(url).then(() => {
-      alert("Ссылка на все схемы скопирована в буфер обмена!");
-    }).catch(() => {
-      alert("Не удалось скопировать ссылку");
-    });
-  };
+  // const handleShareAll = () => {
+  //   if (meds.length === 0) {
+  //     alert("Нет схем для обмена");
+  //     return;
+  //   }
+  //   const url = window.location.origin + window.location.pathname + StorageUtils.encodeToURL(meds);
+  //   navigator.clipboard.writeText(url).then(() => {
+  //     alert("Ссылка на все схемы скопирована в буфер обмена!");
+  //   }).catch(() => {
+  //     alert("Не удалось скопировать ссылку");
+  //   });
+  // };
 
   return (
     <div className="builder-actions" style={{ marginBottom: '20px', justifyContent: 'center', gap: '10px' }}>
