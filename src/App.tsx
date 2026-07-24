@@ -107,7 +107,7 @@ function App() {
         </div>
       )}
 
-      <div className="builder-actions" style={{ marginBottom: '20px', justifyContent: 'flex-start', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div className="builder-actions" style={{ marginBottom: '20px', justifyContent: 'center', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
         <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-soft)' }}>Общая дата начала:</label>
         <input
           type="date"
