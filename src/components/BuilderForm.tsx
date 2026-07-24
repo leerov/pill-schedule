@@ -10,7 +10,7 @@ interface BuilderFormProps {
 }
 
 const CONFIG = {
-  defaultShape: 'tablet-round',
+  defaultShape: 'tablet-round' as const,
   defaultColor: '#5B6FE0'
 };
 
@@ -140,7 +140,7 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
         </div>
         <div className="field" style={{flex: '0 0 150px'}}>
           <label>Форма</label>
-          <select value={shape} onChange={e => setShape(e.target.value)}>
+<select value={shape} onChange={e => setShape(e.target.value as 'tablet-round' | 'tablet-oval' | 'capsule')}>
             <option value="tablet-round">Таблетка круглая</option>
             <option value="tablet-oval">Таблетка овальная</option>
             <option value="capsule">Капсула</option>

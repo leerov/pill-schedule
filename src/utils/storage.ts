@@ -1,7 +1,5 @@
 import { Medication } from '../types';
 
-const STORAGE_PREFIX = 'med_tracker_';
-
 export const StorageUtils = {
   exportToFile(meds: Medication[]): void {
     const dataStr = JSON.stringify(meds, null, 2);
