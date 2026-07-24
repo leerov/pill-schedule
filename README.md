@@ -1,4 +1,17 @@
-# React + TypeScript + Vite
+# Генератор схем приёма препаратов (Pill Schedule)
+
+Проект на React + TypeScript + Vite.
+
+## Деплой на GitHub Pages
+
+1. Убедитесь, что в `package.json` прописан `"homepage": "https://leerov.github.io/pill-schedule"`.
+2. Выполните команду `npm run deploy`.
+3. В настройках репозитория на GitHub (Settings -> Pages) выберите ветку `gh-pages` и папку `/ (root)`.
+
+## Фиксация версий
+
+Предупреждения `npm WARN EBADENGINE` от пакетов вроде `eslint-visitor-keys` **не критичны** и не ломают сборку. Они лишь означают, что авторы пакета рекомендуют более новую версию Node.js.
+Главная проблема ранее была в том, что `npm audit fix --force` обновил `vite` до несовместимой 8-й версии. Теперь версии жестко зафиксированы.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
