@@ -103,7 +103,7 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onEdit }) => {
         <div className="icon-box" dangerouslySetInnerHTML={{ __html: getMedIcon(med.icon, dark) }} />
         <div className="card-title">
           <h2>{med.sub}</h2>
-          <div className="sub">{med.name}</div>
+          <div className="sub">({med.name})</div>
         </div>
         <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }} className="card-actions">
           <button className="ghost-btn" onClick={onEdit}>✏️</button>
