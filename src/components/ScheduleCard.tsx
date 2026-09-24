@@ -68,15 +68,15 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onEdit }) => {
     const dateLabel = DateUtils.fmtRange(rangeStart, rangeEnd);
     cumDays += phaseDays;
 
-    // Переформатируем день: "1–3 дня" -> "с 1 по 3 день", "4 день" -> "с 4 по 4 день"
+    // Переформатируем день: "с 1 по 5 дней" -> "с 1 по 5 день", "11 дней" -> "11 день"
     let dayDisplay = s.day;
-    const rangeMatch = s.day.match(/^(\d+)–(\d+)\s+(день|дня|дней)$/);
+    const rangeMatch = s.day.match(/^с\s+(\d+)\s+по\s+(\d+)\s+(день|дня|дней)$/);
     const singleMatch = s.day.match(/^(\d+)\s+(день|дня|дней)$/);
 
     if (rangeMatch) {
       dayDisplay = `с ${rangeMatch[1]} по ${rangeMatch[2]} день`;
     } else if (singleMatch) {
-      dayDisplay = `с ${singleMatch[1]} по ${singleMatch[1]} день`;
+      dayDisplay = `${singleMatch[1]} день`;
     }
 
     const stepStyle = s.maintenance ? `border-color:${accent};background:${soft};` : "";
