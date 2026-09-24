@@ -146,7 +146,7 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
           <input type="text" value={sub} onChange={e => setSub(e.target.value)} placeholder="напр. торговое название «Заласта»" />
         </div>
         <div className="field" style={{flex: '2 1 220px'}}>
-          <label>Название (МНН)</label>
+          <label>Название</label>
           <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="напр. Оланзапин" />
         </div>
         <div className="field" style={{flex: '0 0 150px'}}>
