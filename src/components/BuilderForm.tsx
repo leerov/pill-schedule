@@ -20,9 +20,8 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
   const [shape, setShape] = useState<'tablet-round' | 'tablet-oval' | 'capsule'>(editingMed?.icon || CONFIG.defaultShape);
   const [color, setColor] = useState(editingMed?.color || CONFIG.defaultColor);
   const [startDate, setStartDate] = useState(editingMed?.startDate || DateUtils.todayISO());
-  const [taken, setTaken] = useState(editingMed?.takenCount || 0);
   const [phases, setPhases] = useState<FormPhase[]>([{
-    day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: []
+    dose: '', unit: 'мг/сут', days: 0, detail: '', maintenance: false, times: []
   }]);
 
   React.useEffect(() => {
@@ -32,12 +31,10 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
       setShape(editingMed.icon);
       setColor(editingMed.color);
       setStartDate(editingMed.startDate);
-      setTaken(editingMed.takenCount);
 
       const newPhases: FormPhase[] = editingMed.phases.map((p, idx) => {
         const step = editingMed.steps[idx] || { day: '', dose: '', unit: '', detail: '', maintenance: false };
         return {
-          day: step.day,
           dose: step.dose,
           unit: step.unit,
           days: p.days,
@@ -46,12 +43,12 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
           times: p.times
         };
       });
-      setPhases(newPhases.length > 0 ? newPhases : [{ day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
+      setPhases(newPhases.length > 0 ? newPhases : [{ dose: '', unit: 'мг/сут', days: 0, detail: '', maintenance: false, times: [] }]);
     }
   }, [editingMed]);
 
   const addPhase = () => {
-    setPhases([...phases, { day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
+    setPhases([...phases, { dose: '', unit: 'мг/сут', days: 0, detail: '', maintenance: false, times: [] }]);
   };
 
   const removePhase = (index: number) => {
@@ -84,17 +81,32 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
       alert("Добавьте хотя бы один этап дозирования");
       return;
     }
+    if (phases.some(p => !p.days || p.days <= 0)) {
+      alert("Укажите количество дней для каждого этапа");
+      return;
+    }
 
-    const steps = phases.map(p => ({
-      day: p.day || '—',
-      dose: p.dose || '—',
-      unit: p.unit || '',
-      detail: p.detail || '',
-      maintenance: p.maintenance
-    }));
+    let currentDay = 1;
+    const steps = phases.map(p => {
+      const startDay = currentDay;
+      const endDay = currentDay + p.days - 1;
+      currentDay += p.days;
+
+      const dayLabel = startDay === endDay
+        ? `${startDay} ${DateUtils.pluralizeDays(startDay)}`
+        : `${startDay}–${endDay} ${DateUtils.pluralizeDays(endDay)}`;
+
+      return {
+        day: dayLabel,
+        dose: p.dose || '—',
+        unit: p.unit || '',
+        detail: p.detail || '',
+        maintenance: p.maintenance
+      };
+    });
 
     const medPhases = phases.map(p => ({
-      label: `${p.dose || '—'} ${p.unit} · ${p.maintenance ? "далее" : p.days + " дня"}`,
+      label: `${p.dose || '—'} ${p.unit} · ${p.maintenance ? "далее" : p.days + " " + DateUtils.pluralizeDays(p.days)}`,
       days: p.maintenance ? Math.max(p.days, 7) : p.days,
       times: p.times.length ? p.times : ['Приём'],
       maintenance: p.maintenance
@@ -107,7 +119,7 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
       icon: shape as 'tablet-round' | 'tablet-oval' | 'capsule',
       color,
       startDate,
-      takenCount: taken,
+      takenCount: 0,
       steps,
       phases: medPhases
     };
@@ -121,8 +133,7 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
       setShape(CONFIG.defaultShape);
       setColor(CONFIG.defaultColor);
       setStartDate(DateUtils.todayISO());
-      setTaken(0);
-      setPhases([{ day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
+      setPhases([{ dose: '', unit: 'мг/сут', days: 0, detail: '', maintenance: false, times: [] }]);
     }
   };
 
@@ -131,12 +142,12 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
       <h3>Препарат</h3>
       <div className="row">
         <div className="field" style={{flex: '2 1 220px'}}>
-          <label>Название (МНН)</label>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="напр. Оланзапин" />
-        </div>
-        <div className="field" style={{flex: '2 1 220px'}}>
           <label>Торговое название</label>
           <input type="text" value={sub} onChange={e => setSub(e.target.value)} placeholder="напр. торговое название «Заласта»" />
+        </div>
+        <div className="field" style={{flex: '2 1 220px'}}>
+          <label>Название (МНН)</label>
+          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="напр. Оланзапин" />
         </div>
         <div className="field" style={{flex: '0 0 150px'}}>
           <label>Форма</label>
@@ -154,10 +165,6 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
           <label>Дата начала приёма</label>
           <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
         </div>
-        <div className="field" style={{flex: '0 0 130px'}}>
-          <label>Уже принято доз</label>
-          <input type="number" min="0" value={taken} onChange={e => setTaken(parseInt(e.target.value) || 0)} />
-        </div>
       </div>
 
       <h3 style={{marginTop: '18px'}}>Этапы дозирования</h3>
@@ -166,10 +173,6 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
           <span className="phase-num">Этап {idx + 1}</span>
           <button className="remove-phase" onClick={() => removePhase(idx)}>Удалить</button>
           <div className="row" style={{marginBottom: '8px'}}>
-            <div className="field" style={{flex: '1 1 140px'}}>
-              <label>Дни (подпись)</label>
-              <input type="text" value={p.day} onChange={e => updatePhase(idx, 'day', e.target.value)} placeholder="напр. 1–3 день" />
-            </div>
             <div className="field" style={{flex: '0 0 100px'}}>
               <label>Доза</label>
               <input type="text" value={p.dose} onChange={e => updatePhase(idx, 'dose', e.target.value)} placeholder="напр. 5" />
@@ -179,8 +182,8 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
               <input type="text" value={p.unit} onChange={e => updatePhase(idx, 'unit', e.target.value)} placeholder="мг/сут" />
             </div>
             <div className="field" style={{flex: '0 0 90px'}}>
-              <label>Дней в этапе</label>
-              <input type="number" min="1" value={p.days} onChange={e => updatePhase(idx, 'days', parseInt(e.target.value) || 1)} />
+              <label>Дней в этапе *</label>
+              <input type="number" min="1" value={p.days || ''} onChange={e => updatePhase(idx, 'days', parseInt(e.target.value) || 0)} placeholder="0" />
             </div>
           </div>
           <div className="field" style={{marginBottom: '8px'}}>
@@ -225,8 +228,8 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
         {!editingMed && (
           <button className="ghost-btn" onClick={() => {
             setName(''); setSub(''); setShape(CONFIG.defaultShape); setColor(CONFIG.defaultColor);
-            setStartDate(DateUtils.todayISO()); setTaken(0);
-            setPhases([{ day: '', dose: '', unit: 'мг/сут', days: 3, detail: '', maintenance: false, times: [] }]);
+            setStartDate(DateUtils.todayISO());
+            setPhases([{ dose: '', unit: 'мг/сут', days: 0, detail: '', maintenance: false, times: [] }]);
           }}>Очистить форму</button>
         )}
       </div>

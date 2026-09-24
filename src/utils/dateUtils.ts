@@ -25,5 +25,13 @@ export const DateUtils = {
   },
   isoOffset(n: number): string {
     return this.isoLocal(this.addDays(new Date(), n));
+  },
+  pluralizeDays(n: number): string {
+    const lastDigit = n % 10;
+    const lastTwoDigits = n % 100;
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return 'дней';
+    if (lastDigit === 1) return 'день';
+    if (lastDigit >= 2 && lastDigit <= 4) return 'дня';
+    return 'дней';
   }
 };

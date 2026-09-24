@@ -26,7 +26,6 @@ export interface Medication {
 }
 
 export interface FormPhase {
-  day: string;
   dose: string;
   unit: string;
   days: number;
