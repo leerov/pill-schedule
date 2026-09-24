@@ -94,7 +94,7 @@ export const BuilderForm: React.FC<BuilderFormProps> = ({ onGenerate, editingMed
 
       const dayLabel = startDay === endDay
         ? `${startDay} ${DateUtils.pluralizeDays(startDay)}`
-        : `${startDay}–${endDay} ${DateUtils.pluralizeDays(endDay)}`;
+        : `с ${startDay} по ${endDay} ${DateUtils.pluralizeDays(endDay)}`;
 
       return {
         day: dayLabel,

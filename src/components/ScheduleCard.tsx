@@ -68,10 +68,21 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onEdit }) => {
     const dateLabel = DateUtils.fmtRange(rangeStart, rangeEnd);
     cumDays += phaseDays;
 
+    // Переформатируем день: "1–3 дня" -> "с 1 по 3 день", "4 день" -> "с 4 по 4 день"
+    let dayDisplay = s.day;
+    const rangeMatch = s.day.match(/^(\d+)–(\d+)\s+(день|дня|дней)$/);
+    const singleMatch = s.day.match(/^(\d+)\s+(день|дня|дней)$/);
+
+    if (rangeMatch) {
+      dayDisplay = `с ${rangeMatch[1]} по ${rangeMatch[2]} день`;
+    } else if (singleMatch) {
+      dayDisplay = `с ${singleMatch[1]} по ${singleMatch[1]} день`;
+    }
+
     const stepStyle = s.maintenance ? `border-color:${accent};background:${soft};` : "";
     stepsHtml += `
       <div class="step" style="${stepStyle}">
-        <div class="day-tag">${s.day}</div>
+        <div class="day-tag">${dayDisplay}</div>
         <div class="date-sub">${dateLabel}</div>
         <div class="dose">${s.dose}<small> ${s.unit}</small></div>
         <div class="detail">${s.detail}</div>
@@ -91,8 +102,8 @@ export const ScheduleCard: React.FC<ScheduleCardProps> = ({ med, onEdit }) => {
       <div className="card-head">
         <div className="icon-box" dangerouslySetInnerHTML={{ __html: getMedIcon(med.icon, dark) }} />
         <div className="card-title">
-          <h2>{med.name}</h2>
-          <div className="sub">{med.sub}</div>
+          <h2>{med.sub}</h2>
+          <div className="sub">{med.name}</div>
         </div>
         <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }} className="card-actions">
           <button className="ghost-btn" onClick={onEdit}>✏️</button>

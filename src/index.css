@@ -312,42 +312,40 @@ input[type=checkbox].dose-check { width: 17px; height: 17px; cursor: pointer; }
 
 @media print {
   @page { size: A4; margin: 9mm 11mm; }
-  body { background: #fff !important; color: #000 !important; }
+  body { background: #fff; }
   .top-actions-row, .builder, .delete-card, .builder-actions, .modal-overlay, .close-modal, .delete-med-btn, .intro-card { display: none !important; }
   .eyebrow, .lead { display: none; }
   .wrap { max-width: 100%; padding: 0; }
   header { margin-bottom: 8px; }
   h1 { font-size: 19px; margin: 0 0 4px; }
-  .notice { padding: 8px 12px; font-size: 10.5px; margin-top: 0; border-radius: 8px; border: 2px solid #000; background: #fff; color: #000; }
+  .notice { padding: 8px 12px; font-size: 10.5px; margin-top: 0; border-radius: 8px; }
   .notice svg { width: 14px; height: 14px; }
 
   .med-block { break-inside: avoid; page-break-inside: avoid; margin-bottom: 16px; }
-  .card-wrapper { break-inside: avoid; border: 2px solid #000; border-radius: 10px; margin-top: 9px; background: #fff; }
+  .card-wrapper { break-inside: avoid; border: 1px solid #d8d4c9; border-radius: 10px; margin-top: 9px; }
   .card { box-shadow: none; border: none; border-radius: 0; }
   .card-head { padding: 10px 14px 8px; gap: 9px; }
   .card-actions, .edit-btn { display: none !important; }
-  .icon-box { width: 38px; height: 38px; border-radius: 8px; border: 2px solid #000; background: #fff; }
-  .icon-box svg { filter: grayscale(100%) contrast(150%); }
-  .card-title h2 { font-size: 13.5px; margin: 0 0 1px; color: #000; }
-  .card-title .sub { font-size: 9.5px; color: #000; }
-  .pill-tag { font-size: 8.5px; padding: 3px 8px; border: 1px solid #000; background: #fff; color: #000; }
+  .icon-box { width: 38px; height: 38px; border-radius: 8px; }
+  .icon-box svg { width: 30px; height: 30px; }
+  .card-title h2 { font-size: 13.5px; margin: 0 0 1px; }
+  .card-title .sub { font-size: 9.5px; }
+  .pill-tag { font-size: 8.5px; padding: 3px 8px; }
 
   .steps { padding: 0 14px 8px; gap: 5px; }
-  .step { min-width: 0; padding: 6px 7px 7px; border-radius: 8px; border: 2px solid #000; background: #fff; color: #000; }
-  .step .day-tag { font-size: 8.5px; color: #000; font-weight: 700; }
-  .step .date-sub { font-size: 8px; color: #333; }
-  .step .dose { font-size: 14px; color: #000; }
-  .step .detail { font-size: 8.5px; color: #000; }
-  .arrow svg { width: 12px; height: 8px; color: #000; }
+  .step { min-width: 0; padding: 6px 7px 7px; border-radius: 8px; }
+  .step .day-tag { font-size: 8.5px; }
+  .step .date-sub { font-size: 8px; }
+  .step .dose { font-size: 14px; }
+  .step .detail { font-size: 8.5px; }
+  .arrow svg { width: 12px; height: 8px; }
 
   .tracker-wrap { padding: 0 14px 10px; }
-  table.tracker { border: 2px solid #000; }
-  table.tracker th, table.tracker td { padding: 3px 6px; font-size: 9px; height: 19px; border: 1px solid #000; color: #000; }
-  table.tracker th { background: #000 !important; color: #fff !important; font-weight: 700; }
-  table.tracker td:first-child, table.tracker th:first-child { padding-left: 12px; font-weight: 600; }
-  tr.phase-divider td { height: 16px; font-size: 9px; padding-left: 12px; background: #000 !important; color: #fff !important; font-weight: 700; }
-  input[type=checkbox].dose-check { width: 11px; height: 11px; accent-color: #000; }
-  .footer-note { font-size: 8px; margin-top: 6px; color: #000; }
+  table.tracker th, table.tracker td { padding: 3px 6px; font-size: 9px; height: 19px; }
+  table.tracker td:first-child, table.tracker th:first-child { padding-left: 12px; }
+  tr.phase-divider td { height: 16px; font-size: 9px; padding-left: 12px; }
+  input[type=checkbox].dose-check { width: 11px; height: 11px; }
+  .footer-note { font-size: 8px; margin-top: 6px; }
 }
 @media (max-width: 600px) {
   .steps { flex-direction: column; }
